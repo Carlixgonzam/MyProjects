@@ -1,0 +1,484 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Brain-sd</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&family=Open+Sans:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/fullcalendar@5.10.2/main.min.css"/>
+    <style>
+        body {
+            font-family: 'Optima', sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #a6c8cb;
+            color: #333;
+        }
+        header {
+            background-color: #333;
+            color: #f5f5f5;
+            padding: 1rem;
+            text-align: center;
+            font-size: 1.5rem;
+            animation: fadeInDown 1s;
+        }
+        nav {
+            display: flex;
+            justify-content: center;
+            background-color: #444;
+            padding: 0.5rem 0;
+        }
+        nav a {
+            color: #f5f5f5;
+            padding: 0.75rem 1.5rem;
+            text-decoration: none;
+            text-align: center;
+            font-size: 1rem;
+            transition: background-color 0.3s;
+        }
+        nav a:hover {
+            background-color: #575757;
+        }
+        .container {
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            padding: 2rem 1rem;
+        }
+        .container.active {
+            display: flex;
+        }
+        .card {
+            background-color: #fff;
+            padding: 2rem;
+            margin: 1rem;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 800px;
+            border-radius: 8px;
+            transition: transform 0.2s ease-in-out;
+            animation: fadeInUp 0.5s;
+        }
+        .card:hover {
+            transform: translateY(-5px);
+        }
+        .card h2 {
+            margin-top: 0;
+            font-size: 1.5rem;
+            color: #333;
+        }
+        .card p {
+            margin-bottom: 1rem;
+            line-height: 1.6;
+        }
+        .notification {
+            background-color: #f0e68c;
+            padding: 1rem;
+            border-radius: 5px;
+            margin-bottom: 1rem;
+            color: #333;
+            font-weight: bold;
+        }
+        .progress-bar {
+            position: relative;
+            height: 20px;
+            background-color: #e0e0e0;
+            border-radius: 10px;
+            overflow: hidden;
+            margin: 10px 0;
+        }
+        .progress-bar > div {
+            height: 100%;
+            background-color: #4caf50;
+            width: 0;
+            transition: width 0.3s;
+        }
+        .gallery {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        .gallery-item {
+            flex: 1 1 calc(33.333% - 20px);
+            background-color: #fff;
+            padding: 1rem;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            border-radius: 8px;
+            text-align: center;
+            cursor: pointer;
+        }
+        .gallery-item h3 {
+            margin: 0;
+            font-size: 1.2rem;
+            color: #333;
+        }
+        .subject-section {
+            margin-top: 2rem;
+        }
+        .subject-section h3 {
+            font-size: 1.2rem;
+            margin-bottom: 1rem;
+        }
+        .subject-section p {
+            margin-bottom: 1rem;
+        }
+        .subject-section input[type="file"] {
+            display: block;
+            margin-bottom: 1rem;
+        }
+        .project-section {
+            margin-top: 2rem;
+        }
+        .project-section h3 {
+            font-size: 1.2rem;
+            margin-bottom: 1rem;
+        }
+        .project-section input[type="text"] {
+            display: block;
+            width: 100%;
+            padding: 0.5rem;
+            margin-bottom: 1rem;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+        }
+        .project-section button {
+            padding: 0.5rem 1rem;
+            border: none;
+            background-color: #4caf50;
+            color: white;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        .project-section ul {
+            list-style: none;
+            padding: 0;
+        }
+        .project-section ul li {
+            background-color: #fff;
+            padding: 1rem;
+            margin-bottom: 0.5rem;
+            border-radius: 5px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+        #chatbox {
+            border: 1px solid #ccc;
+            padding: 10px;
+            height: 200px;
+            overflow-y: auto;
+            margin-bottom: 10px;
+            background-color: #fff;
+            border-radius: 5px;
+        }
+        #chatbox p {
+            margin: 0;
+            padding: 5px;
+        }
+        @keyframes fadeInDown {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+    </style>
+</head>
+<body>
+    <header class="animate__animated animate__fadeInDown">
+        EduProgress
+    </header>
+    <nav>
+        <a href="#" onclick="showSection('inicio')">Inicio</a>
+        <a href="#" onclick="showSection('gestion')">Gestión del Tiempo</a>
+        <a href="#" onclick="showSection('progreso')">Progreso</a>
+        <a href="#" onclick="showSection('recomendaciones')">Recomendaciones</a>
+        <a href="#" onclick="showSection('proyectos')">Proyectos Personales</a>
+        <a href="#" onclick="showSection('configuracion')">Configuración</a>
+    </nav>
+    <div class="container active" id="inicio">
+        <div class="card">
+            <h2>Vista General</h2>
+            <div class="notification">Próxima tarea: Entrega de proyecto en 2 días</div>
+            <p>Resumen del progreso académico</p>
+            <div class="progress-bar">
+                <div style="width: 75%;"></div>
+            </div>
+            <div class="gallery">
+                <div class="gallery-item" onclick="showSubjectDetails('Matemáticas')">
+                    <h3>Matemáticas</h3>
+                </div>
+                <div class="gallery-item" onclick="showSubjectDetails('Física')">
+                    <h3>Física</h3>
+                </div>
+                <div class="gallery-item" onclick="showSubjectDetails('Programación')">
+                    <h3>Programación</h3>
+                </div>
+                <!-- Agregar más materias aquí -->
+            </div>
+        </div>
+        <div class="card">
+            <h2>Calendario</h2>
+            <div id="calendar"></div>
+        </div>
+        <div class="card">
+            <h2>Notificaciones y Recordatorios</h2>
+            <p>No tienes notificaciones nuevas</p>
+        </div>
+    </div>
+
+    <div class="container" id="gestion">
+        <div class="card">
+            <h2>Gestión del Tiempo</h2>
+            <form id="time-management-form">
+                <label for="study-time">Tiempo de estudio (en horas):</label>
+                <input type="number" id="study-time" name="study-time" min="1" required>
+                <button type="submit">Registrar</button>
+            </form>
+            <p id="time-management-result"></p>
+            <div id="study-plan"></div>
+            <div id="study-bonus"></div>
+        </div>
+    </div>
+
+    <div class="container" id="progreso">
+        <div class="card">
+            <h2>Progreso</h2>
+            <canvas id="progressChart"></canvas>
+            <p>¡Sigue así! Estás haciendo un gran trabajo.</p>
+        </div>
+    </div>
+
+    <div class="container" id="recomendaciones">
+        <div class="card">
+            <h2>Recomendaciones</h2>
+            <p id="recommendations"></p>
+            <div id="chatbot">
+                <h3>Chatbot</h3>
+                <div id="chatbox">
+                    <p><strong>Chatbot:</strong> ¡Hola! ¿En qué puedo ayudarte hoy?</p>
+                </div>
+                <input type="text" id="userInput" placeholder="Escribe tu pregunta...">
+                <button onclick="sendMessage()">Enviar</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="container" id="proyectos">
+        <div class="card">
+            <h2>Proyectos Personales</h2>
+            <div class="project-section">
+                <h3>Agregar Proyecto</h3>
+                <input type="text" id="project-name" placeholder="Nombre del Proyecto">
+                <button onclick="addProject()">Agregar</button>
+                <ul id="project-list"></ul>
+            </div>
+        </div>
+    </div>
+
+    <div class="container" id="materia-detalle">
+        <div class="card">
+            <h2>Detalle de Materia</h2>
+            <div id="subject-details"></div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/fullcalendar@5.10.2/main.min.js"></script>
+    <script>
+        function showSection(sectionId) {
+            const sections = document.querySelectorAll('.container');
+            sections.forEach(section => section.classList.remove('active'));
+            document.getElementById(sectionId).classList.add('active');
+        }
+
+        function toggleContent(element) {
+            const hiddenContent = element.previousElementSibling;
+            if (hiddenContent.classList.contains('hidden')) {
+                hiddenContent.classList.remove('hidden');
+                element.textContent = 'Mostrar menos';
+            } else {
+                hiddenContent.classList.add('hidden');
+                element.textContent = 'Mostrar más';
+            }
+        }
+
+        document.getElementById('time-management-form').addEventListener('submit', function(event) {
+            event.preventDefault();
+            const studyTime = document.getElementById('study-time').value;
+            document.getElementById('time-management-result').textContent = `Has registrado ${studyTime} horas de estudio.`;
+            generateStudyPlan(studyTime);
+        });
+
+        function generateStudyPlan(studyTime) {
+            const subjects = [
+                { name: 'Matemáticas', credits: 3 },
+                { name: 'Física', credits: 2 },
+                { name: 'Programación', credits: 4 }
+                // Añadir más materias y créditos según sea necesario
+            ];
+            const totalCredits = subjects.reduce((acc, subject) => acc + subject.credits, 0);
+            const studyPlan = subjects.map(subject => {
+                const hoursPerWeek = (subject.credits / totalCredits) * studyTime;
+                return `<p>${subject.name}: ${hoursPerWeek.toFixed(2)} horas/semana</p>`;
+            }).join('');
+            document.getElementById('study-plan').innerHTML = `<h3>Plan de Estudio</h3>${studyPlan}`;
+            document.getElementById('study-bonus').innerHTML = `<h3>Bonos de Estudio</h3><p>¡Has ganado un bono por estudiar ${studyTime} horas esta semana!</p>`;
+        }
+
+        const ctx = document.getElementById('progressChart').getContext('2d');
+        const progressChart = new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: ['Matemáticas', 'Física', 'Programación', 'Historia'],
+                datasets: [{
+                    label: 'Progreso Académico',
+                    data: [75, 80, 90, 85],
+                    backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                    borderColor: 'rgba(75, 192, 192, 1)',
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                scales: {
+                    y: {
+                        beginAtZero: true
+                    }
+                }
+            }
+        });
+
+        function getRecommendations(career) {
+            // Simulación de IA para recomendaciones basadas en la carrera
+            const recommendations = {
+                'Ingeniería de Sistemas': [
+                    'Curso de Machine Learning en Coursera',
+                    'Tutorial de React en FreeCodeCamp',
+                    'Libro: Clean Code de Robert C. Martin'
+                ],
+                'Medicina': [
+                    'Curso de Anatomía en Khan Academy',
+                    'Tutorial de técnicas de diagnóstico en Medscape',
+                    'Libro: Gray\'s Anatomy'
+                ]
+                // Agregar más carreras y recomendaciones según sea necesario
+            };
+
+            return recommendations[career] || ['Recomendaciones no disponibles para esta carrera.'];
+        }
+
+        // Simulación de obtener la carrera del usuario y mostrar recomendaciones
+        const userCareer = 'Ingeniería de Sistemas'; // Esto se puede obtener dinámicamente
+        document.getElementById('recommendations').innerHTML = getRecommendations(userCareer).join('<br>');
+
+        document.addEventListener('DOMContentLoaded', function() {
+            var calendarEl = document.getElementById('calendar');
+            var calendar = new FullCalendar.Calendar(calendarEl, {
+                initialView: 'dayGridMonth',
+                events: [
+                    {
+                        title: 'Entrega de proyecto',
+                        start: '2024-06-25'
+                    },
+                    {
+                        title: 'Examen de Matemáticas',
+                        start: '2024-06-30'
+                    }
+                    // Añadir más eventos según sea necesario
+                ]
+            });
+            calendar.render();
+        });
+
+        function sendMessage() {
+            const userInput = document.getElementById('userInput').value;
+            if (userInput.trim() !== "") {
+                const chatbox = document.getElementById('chatbox');
+                const userMessage = document.createElement('p');
+                userMessage.innerHTML = `<strong>Tú:</strong> ${userInput}`;
+                chatbox.appendChild(userMessage);
+                document.getElementById('userInput').value = '';
+
+                // Simulación de respuesta del chatbot
+                setTimeout(() => {
+                    const botResponse = document.createElement('p');
+                    botResponse.innerHTML = `<strong>Chatbot:</strong> ${getChatbotResponse(userInput)}`;
+                    chatbox.appendChild(botResponse);
+                    chatbox.scrollTop = chatbox.scrollHeight;
+                }, 1000);
+            }
+        }
+
+        function getChatbotResponse(userInput) {
+            const responses = {
+                "machine learning": "El Machine Learning es un campo de la inteligencia artificial que se enfoca en enseñar a las máquinas a aprender de los datos.",
+                "react": "React es una biblioteca de JavaScript para construir interfaces de usuario.",
+                "clean code": "Clean Code es un libro escrito por Robert C. Martin que aboga por escribir código legible, simple y fácil de mantener."
+                // Añadir más respuestas según sea necesario
+            };
+            return responses[userInput.toLowerCase()] || "Lo siento, no tengo información sobre eso.";
+        }
+
+        function showSubjectDetails(subject) {
+            const details = {
+                'Matemáticas': {
+                    description: 'Curso de Matemáticas avanzadas, incluye álgebra, cálculo y geometría.',
+                    notes: ['Nota 1: Introducción al Álgebra', 'Nota 2: Derivadas e Integrales']
+                },
+                'Física': {
+                    description: 'Curso de Física aplicada, incluye mecánica, termodinámica y electromagnetismo.',
+                    notes: ['Nota 1: Leyes de Newton', 'Nota 2: Termodinámica Básica']
+                },
+                'Programación': {
+                    description: 'Curso de Programación avanzada, incluye estructuras de datos, algoritmos y desarrollo web.',
+                    notes: ['Nota 1: Algoritmos Básicos', 'Nota 2: Introducción a React']
+                }
+                // Agregar más detalles de materias según sea necesario
+            };
+            const subjectDetails = details[subject];
+            if (subjectDetails) {
+                document.getElementById('subject-details').innerHTML = `
+                    <h3>${subject}</h3>
+                    <p>${subjectDetails.description}</p>
+                    <h4>Notas de Clase</h4>
+                    <ul>
+                        ${subjectDetails.notes.map(note => `<li>${note}</li>`).join('')}
+                    </ul>
+                    <h4>Subir Documentos</h4>
+                    <input type="file" id="fileUpload-${subject}" />
+                `;
+                showSection('materia-detalle');
+            }
+        }
+
+        function addProject() {
+            const projectName = document.getElementById('project-name').value;
+            if (projectName.trim() !== "") {
+                const projectList = document.getElementById('project-list');
+                const projectItem = document.createElement('li');
+                projectItem.textContent = projectName;
+                projectList.appendChild(projectItem);
+                document.getElementById('project-name').value = '';
+            }
+        }
+    </script>
+</body>
+</html>
+
+
+
+        
+
+
